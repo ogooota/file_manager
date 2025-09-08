@@ -1,7 +1,7 @@
-#include <iostream>
-#include <vector>
 #include <filesystem>
 #include <cstring>
+#include <iostream>
+#include "rainbowText.hpp"
 
 // :DDDDDD
 std::vector<std::string> split(const char& del, const std::string& text) {
@@ -29,7 +29,7 @@ std::vector<std::filesystem::path> get_current_path_files(std::filesystem::path&
     }
     catch (std::filesystem::filesystem_error const& e) {
         std::cout << "error: " << e.what() << "\n";
-        // deve ter que fazer outra coisa, se jogar exceÃ§Ã£o nÃ£o pode retornar a lista
+        // deve ter que fazer outra coisa, se jogar exceção não pode retornar a lista
         return files;
     }
 }
@@ -45,7 +45,7 @@ int main() {
         }
     }
     for (std::string& e : file_names) {
-        std::cout << e << "\n";
+        std::cout << rainbowText(e) << "\n";
     }
     return 0;
 }
