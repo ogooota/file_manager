@@ -1,4 +1,4 @@
-#include "rainbowText.hpp"
+#include "rainbowText.h"
 
 std::vector<std::string> colors = {
    "\033[31m", "\033[91m", "\033[33m", "\033[93m",
@@ -7,7 +7,7 @@ std::vector<std::string> colors = {
    "\033[37m", "\033[97m", "\033[90m", "\033[38;5;208m"
 };
 
-std::string rainbowText(std::string& text) {
+std::string rainbowText(std::string text) {
     std::stringstream ss;
     for (int i = 0;i < text.size();i++) {
         ss << colors[i % colors.size()] << text[i];
