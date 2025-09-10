@@ -1,9 +1,11 @@
 #include <filesystem>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include "rainbowText.h"
 #include "fileManager.h"
 
+std::filesystem::path globals::workspace;
 
 // commands:
 // set dir [directory to be created] or [directory that already exists];
@@ -14,24 +16,38 @@
 // execute (for executing the action this program does: organizing shit in folders)
 // auto [file_extensions to get folders created, separated by comma]
 
-void set_directory(const std::string& dir_name) {
-    std::filesystem::path dir = std::filesystem::current_path().string() + "/" + dir_name; 
+bool set_directory(const std::string& dir_name) {
+    std::filesystem::path dir = std::filesystem::current_path().string() + "\\" + dir_name;
     if(!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)) {
-        if(std::filesystem::create_directory(dir)) std::cout << "Directory created: " << dir_name << "\n"; 
-        else {
-            std::cout << "an error occurred while creating your folder." << "\n";
+        try {
+            if (std::filesystem::create_directory(dir)) {
+                std::cout << "Directory created: " << dir_name << "\n";
+            }
+        }
+        catch (std::filesystem::filesystem_error& e) {
+            std::cout << "You typed an invalid directory name [\\, /, *, ?, \", <, >, |]\n" << "Please type in a valid name.\n";
+            return false;
         }
     }
-    else {
-        std::cout << "Directory set: " << std::filesystem::current_path().string() + "/" + rainbowText(dir_name) << "\n";
-    }
+    globals::workspace = dir;
+    return true;
 }
 void auto_folder(std::vector<std::string>& file_types) {
     // complete function for creating folders with the file type names
     // and moving the files into them
+    std::string workspace_str = globals::workspace.string();
     for(std::string s : file_types) {
         std::cout << s << "\n"; 
+        if (dir_exists(globals::workspace)) {
+
+        }
     }
+}
+bool dir_exists(std::filesystem::path& dir) {
+    if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)) {
+        return false;
+    }
+    return true;
 }
 void quit() {
     std::exit(0);

@@ -15,9 +15,9 @@ int main() {
         }
     }
     for (std::string& e : file_names) {
-        std::cout << rainbowText("File: ") << e << "\n";
+        std::cout << rainbowText("File: ") << rainbowText(e) << "\n";
     }
-    while(true) {        
+    while(true) {    
         std::cout << "\n->$"; 
         std::string command; std::getline(std::cin, command); 
         if(command == "quit") {
@@ -26,7 +26,12 @@ int main() {
         std::vector<std::string> command_vec = split(' ', command);
         if(command_vec[0] == "set" && command_vec[1] == "dir") {
             const std::string dir_name = command_vec[2];
-            set_directory(dir_name);
+            if (set_directory(dir_name)) {
+                std::cout << "Directory set: " << std::filesystem::current_path().string() + "/" + rainbowText(dir_name) << "\n";
+            }
+        }
+        else if (command == "workspace") {
+            std::cout << rainbowText(globals::workspace.string()) << "\n";
         }
         else if(command_vec[0] == "auto") {
             command_vec.erase(command_vec.begin());
