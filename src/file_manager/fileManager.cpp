@@ -32,16 +32,64 @@ bool set_directory(const std::string& dir_name) {
     globals::workspace = dir;
     return true;
 }
+
+
+// auto folder part
 void auto_folder(std::vector<std::string>& file_types) {
-    // complete function for creating folders with the file type names
-    // and moving the files into them
+    std::vector<std::filesystem::path> folders_to_create = list_folders(file_types);
+    std::vector<std::ofstream> files_to_move;
+
+    if(!create_folders(folders_to_create)) {
+        std::cout << "an error has occurred while creating the folders.\n";
+    }
+    
+}
+std::vector<std::filesystem::path> list_folders(std::vector<std::string>& file_types) {
+    std::vector<std::filesystem::path> folders_to_create;
     std::string workspace_str = globals::workspace.string();
     for(std::string s : file_types) {
-        std::cout << s << "\n"; 
-        if (dir_exists(globals::workspace)) {
-
+        std::filesystem::path path_to_check = workspace_str + "\\" + s;
+        std::cout << "Checking: " << path_to_check.string() << "\n"; 
+        try {
+            if(!dir_exists(path_to_check)) {
+                std::cout << "Directory \"" << path_to_check.string() << "\" not found.\n";
+                folders_to_create.push_back(path_to_check);
+            }
+            else {
+                std::cout << "Directory \"" << path_to_check.string() << "\" already exists.\n";
+            }
+        }
+        catch(std::filesystem::filesystem_error& e) {
+            std::cout << "error: " << e.what() << "\n";
         }
     }
+    return folders_to_create;
+}
+
+bool execute() {
+    return false;
+}
+
+bool move_files() {
+    return false;
+}
+bool find_files() {
+    return false;
+}
+
+bool create_folders(std::vector<std::filesystem::path>& folders_to_create) {
+    try {
+        for(std::filesystem::path& e : folders_to_create) {
+            if(std::filesystem::create_directory(e)) {
+                std::cout << "Directory created: " << rainbowText(e.string()) << "\n";
+            }
+        }    
+    }
+    catch(std::filesystem::filesystem_error& e) {
+        std::cout << "error: " << e.what() << "\n";
+        return false;
+    }
+    return true;
 }
 bool dir_exists(std::filesystem::path& dir) {
     if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)) {
@@ -49,6 +97,7 @@ bool dir_exists(std::filesystem::path& dir) {
     }
     return true;
 }
+
 void quit() {
     std::exit(0);
 }
@@ -94,7 +143,7 @@ std::vector<std::filesystem::path> get_current_path_files(std::filesystem::path&
     }
     catch (std::filesystem::filesystem_error const& e) {
         std::cout << "error: " << e.what() << "\n";
-        // deve ter que fazer outra coisa, se jogar exceção não pode retornar a lista
+        // deve ter que fazer outra coisa, se jogar exceï¿½ï¿½o nï¿½o pode retornar a lista
         return files;
     }
 }
