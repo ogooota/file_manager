@@ -2,10 +2,12 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include "rainbowText.h"
+#include <thread>
+#include <chrono>
+#include "graphicals.h"
 #include "fileManager.h"
 
-std::filesystem::path globals::workspace;
+std::filesystem::path globals::workspace = std::filesystem::current_path();
 
 // commands:
 // set dir [directory to be created] or [directory that already exists];
@@ -35,21 +37,22 @@ bool set_directory(const std::string& dir_name) {
 
 
 // auto folder part
-void auto_folder(std::vector<std::string>& file_types) {
-    std::vector<std::filesystem::path> folders_to_create = list_folders(file_types);
-    std::vector<std::ofstream> files_to_move;
+void auto_folder(std::vector<std::string>& folders) {
+    std::vector<std::filesystem::path> folders_to_create = list_folders(folders);
 
     if(!create_folders(folders_to_create)) {
-        std::cout << "an error has occurred while creating the folders.\n";
+        std::cout << "An error has occurred while creating the folders.\n";
     }
-    
+    else {
+        std::cout << "Directories created successfully.\n";
+    }
 }
-std::vector<std::filesystem::path> list_folders(std::vector<std::string>& file_types) {
+std::vector<std::filesystem::path> list_folders(std::vector<std::string>& folders) {
     std::vector<std::filesystem::path> folders_to_create;
     std::string workspace_str = globals::workspace.string();
-    for(std::string s : file_types) {
+    for(std::string s : folders) {
         std::filesystem::path path_to_check = workspace_str + "\\" + s;
-        std::cout << "Checking: " << path_to_check.string() << "\n"; 
+        std::cout << "Checking: " << path_to_check.string() << "\n";
         try {
             if(!dir_exists(path_to_check)) {
                 std::cout << "Directory \"" << path_to_check.string() << "\" not found.\n";
@@ -66,8 +69,11 @@ std::vector<std::filesystem::path> list_folders(std::vector<std::string>& file_t
     return folders_to_create;
 }
 
-bool execute() {
-    return false;
+bool execute(std::vector<std::string>& file_types) {
+    for (const auto& e : globals::workspace) {
+        std::cout << e << "\n";
+    }
+    return true;
 }
 
 bool move_files() {
@@ -78,12 +84,19 @@ bool find_files() {
 }
 
 bool create_folders(std::vector<std::filesystem::path>& folders_to_create) {
+    int total = folders_to_create.size();
+    int i = 0;
     try {
         for(std::filesystem::path& e : folders_to_create) {
-            if(std::filesystem::create_directory(e)) {
-                std::cout << "Directory created: " << rainbowText(e.string()) << "\n";
+            if (std::filesystem::create_directory(e)) {
+                std::cout << "Directory created: " << e.string() << "\n";
             }
+            std::cout << "Creating directories...\n";
+            std::string bar = progressBar(total, ++i);
+            std::cout << rainbowText(bar) << "\r";
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }    
+        std::cout << "\n";
     }
     catch(std::filesystem::filesystem_error& e) {
         std::cout << "error: " << e.what() << "\n";
@@ -146,4 +159,11 @@ std::vector<std::filesystem::path> get_current_path_files(std::filesystem::path&
         // deve ter que fazer outra coisa, se jogar exce��o n�o pode retornar a lista
         return files;
     }
+}
+
+
+// lazy people code;
+void erase_first_and_split(std::vector<std::string>* arr) {
+    arr->erase(arr->begin());
+    *arr = split(',', arr->at(0));
 }
